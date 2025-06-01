@@ -1,11 +1,12 @@
 "use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
+import { DarkModeToggle } from "@/components/ui/dark-mode-toggle";
+import { ModelSelector } from "@/components/ui/model-selector";
 import { useChat } from "@/hooks/useChat";
 import { AlertCircle, Trash2, RefreshCw, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
   const [showApiKeyInput, setShowApiKeyInput] = useState(!apiKey);
   const [currentApiKey, setCurrentApiKey] = useState(apiKey);
   const [tempApiKey, setTempApiKey] = useState(apiKey);
+  const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash");
 
   const {
     messages,
@@ -29,7 +31,7 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
     retryLastMessage,
   } = useChat({
     apiKey: currentApiKey,
-    model: "gemini-2.0-flash",
+    model: selectedModel,
     onError: (error) => {
       console.error("Chat error:", error);
     },
@@ -57,14 +59,22 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
 
   if (showApiKeyInput) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="w-full max-w-md">
+      <div className="flex items-center justify-center min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
+        <div className="absolute top-4 right-4">
+          <DarkModeToggle />
+        </div>
+        <Card className="w-full max-w-md bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-center">Configure Gemini API</CardTitle>
+            <CardTitle className="text-center text-gray-900 dark:text-gray-100">
+              Configure Gemini API
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="apiKey" className="text-sm font-medium">
+              <label
+                htmlFor="apiKey"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Gemini API Key
               </label>
               <Input
@@ -74,6 +84,7 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
                 onChange={(e) => setTempApiKey(e.target.value)}
                 placeholder="Enter your Gemini API key"
                 onKeyDown={(e) => e.key === "Enter" && handleApiKeySubmit()}
+                className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
               />
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -82,7 +93,7 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
                 href="https://aistudio.google.com/app/apikey"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
+                className="text-gray-900 dark:text-gray-100 hover:underline"
               >
                 Google AI Studio
               </a>
@@ -90,7 +101,7 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
             <Button
               onClick={handleApiKeySubmit}
               disabled={!tempApiKey.trim()}
-              className="w-full"
+              className="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900"
             >
               Start Chatting
             </Button>
@@ -101,22 +112,29 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto">
+    <div className="flex flex-col h-screen max-w-4xl mx-auto bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-background">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-semibold">AI Chat Assistant</h1>
-          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200">
-            Gemini 2.0 Flash
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            AI Chat Assistant
+          </h1>
+          <span className="text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded-full dark:bg-gray-700 dark:text-gray-200">
+            {selectedModel
+              .replace("gemini-", "Gemini ")
+              .replace("-", " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase())}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
+          <DarkModeToggle />
+
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowApiKeyInput(true)}
-            className="gap-2"
+            className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <Settings className="h-4 w-4" />
             API Key
@@ -127,7 +145,7 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
               variant="outline"
               size="sm"
               onClick={clearMessages}
-              className="gap-2"
+              className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <Trash2 className="h-4 w-4" />
               Clear
@@ -138,14 +156,14 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
 
       {/* Error Display */}
       {error && (
-        <div className="mx-4 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+        <div className="mx-4 mt-4 p-3 bg-gray-100 border border-gray-300 rounded-lg flex items-center gap-2 text-gray-800 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span className="text-sm">{error}</span>
           <Button
             variant="ghost"
             size="sm"
             onClick={retryLastMessage}
-            className="ml-auto gap-1 text-red-700 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            className="ml-auto gap-1 text-gray-800 hover:text-gray-900 dark:text-gray-200 dark:hover:text-gray-100"
           >
             <RefreshCw className="h-3 w-3" />
             Retry
@@ -176,17 +194,29 @@ export function ChatInterface({ apiKey }: ChatInterfaceProps) {
         )}
       </div>
 
+      {/* Model Selector */}
+      <div className="px-4 pb-2">
+        <div className="flex justify-center">
+          <ModelSelector
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+          />
+        </div>
+      </div>
+
       {/* Input Area */}
-      <ChatInput
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-        disabled={!currentApiKey}
-        placeholder={
-          currentApiKey
-            ? "Type your message..."
-            : "Please configure your API key first"
-        }
-      />
+      <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          disabled={!currentApiKey}
+          placeholder={
+            currentApiKey
+              ? "Type your message..."
+              : "Please configure your API key first"
+          }
+        />
+      </div>
     </div>
   );
 }

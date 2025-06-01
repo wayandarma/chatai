@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,43 +45,38 @@ export function ChatInput({
   }, [isLoading]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex gap-2 p-4 border-t bg-background"
-    >
-      <div className="flex-1 relative">
+    <div className="p-4">
+      <form onSubmit={handleSubmit} className="flex gap-2">
         <Input
           ref={inputRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          disabled={isLoading || disabled}
-          className="pr-12"
+          disabled={disabled || isLoading}
+          className={cn(
+            "flex-1 bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600",
+            "text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400",
+            "focus:border-gray-500 dark:focus:border-gray-400 focus:ring-gray-500 dark:focus:ring-gray-400"
+          )}
+          onKeyDown={handleKeyDown}
           autoComplete="off"
         />
-        {isLoading && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-          </div>
-        )}
-      </div>
-
-      <Button
-        type="submit"
-        disabled={!message.trim() || isLoading || disabled}
-        size="icon"
-        className={cn(
-          "shrink-0",
-          (!message.trim() || isLoading || disabled) && "opacity-50"
-        )}
-      >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Send className="h-4 w-4" />
-        )}
-      </Button>
-    </form>
+        <Button
+          type="submit"
+          disabled={disabled || isLoading || !message.trim()}
+          size="sm"
+          className={cn(
+            "px-3 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200",
+            "text-white dark:text-gray-900 border-gray-900 dark:border-gray-100"
+          )}
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
+        </Button>
+      </form>
+    </div>
   );
 }
